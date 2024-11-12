@@ -1,0 +1,21 @@
+- name: Remove Downtime for Host in Checkmk
+  uri:
+    url: "{{ checkmk_api_url }}/domain-types/downtime/actions/delete/invoke"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ checkmk_user }} {{ checkmk_pass }}"
+      Accept: "application/json"
+      Content-Type: "application/json"
+    body:
+      delete_type: "params"
+      host_name: "{{ checkmk_target_host_name }}"
+    body_format: json
+    follow_redirects: false
+    validate_certs: no
+    status_code: 204
+  register: delete_response
+  ignore_errors: yes
+  
+- name: Print Delete Response
+  debug:
+    var: delete_response.json
