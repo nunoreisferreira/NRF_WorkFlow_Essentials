@@ -1,33 +1,10 @@
 ---
+
 - name: Check NTP Configuration
-  hosts: all
-  gather_facts: yes
-  tasks:
-    - name: Check NTP Configuration
-      command: ntpq -p
-      register: ntp_status
-      ignore_errors: yes
-    - name: Create NTP Results File If Not Exists
-      ansible.builtin.file:
-        path: "/tmp/ntp_results.txt"
-        state: touch
-        mode: '0644'  # Set the desired permissions
-      delegate_to: localhost
+  raw: ntpq -p
+  register: ntp_status
+  ignore_errors: yes
 
-    - name: Append NTP Configuration to Text File
-      lineinfile:
-        dest: "/tmp/ntp_results.txt"
-        line: "{{ inventory_hostname }} NTP Servers:"
-        create: yes
-      delegate_to: localhost
-
-    - name: Format NTP Data and Append to Text File
-      blockinfile:
-        dest: "/tmp/ntp_results.txt"
-        marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ inventory_hostname }}"
-        block: |
-          {% for line in ntp_status.stdout_lines[2:] %}
-          {{ line }}
-          {% endfor %}
-        create: yes  # Set to 'yes' to create the block even if it doesn't exist
-      delegate_to: localhost
+- name: Debug NTP Configuration
+  debug:
+    var: ntp_status.stdout_lines
