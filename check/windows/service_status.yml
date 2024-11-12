@@ -1,0 +1,10 @@
+---
+- name: Check if Service is running on Windows
+  win_service:
+    name: "{{ selected_service }}"
+  register: service_status
+  ignore_errors: yes
+
+- name: Debug service state
+  debug:
+    msg: "Service {{ selected_service }} is {{ service_status.state }}"
