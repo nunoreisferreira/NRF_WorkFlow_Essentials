@@ -1,0 +1,12 @@
+---
+- name: Collect DNS servers using PowerShell
+  win_shell: |
+      Get-NetIPConfiguration | ForEach-Object {
+          $_.InterfaceAlias + ": " + ($_.DNSServer.ServerAddresses -join ", ")
+      }
+  register: dns_servers_output
+
+- name: Display DNS server results
+  debug:
+    var: dns_servers_output.stdout_lines
+    
