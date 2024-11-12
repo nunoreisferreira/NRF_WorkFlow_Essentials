@@ -1,0 +1,22 @@
+---
+- name: Get Hostname [Windows]
+  block:
+    - name: Get hostname (Windows)
+      ansible.windows.win_powershell:
+        script: |
+          $hostname = ([System.Net.Dns]::GetHostByName(($env:computerName))).Hostname.ToLower().TrimStart('-')
+          $hostname
+      register: vm_name
+
+    - name: Print retrieved hostname (Windows)
+      debug:
+        var: vm_name.output
+
+    - name: Set hostname as a fact (Windows)
+      set_fact:
+        hostname: "{{ vm_name.output | join(' ') }}"
+
+    - name: Display hostname after setting fact (Windows)
+      debug:
+        var: hostname
+  when: ansible_facts['os_family'] == 'Windows'
