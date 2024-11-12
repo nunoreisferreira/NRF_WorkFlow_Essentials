@@ -1,0 +1,36 @@
+- name: Delete VM from REN Domain
+  ansible.windows.win_powershell:
+    script: |
+
+      $dnszone = "nrf.pt"
+      $computername = "{{ morpheus['server']['hostname'] }}"
+      $password = "{{ lookup('cypher', 'secret=password/morpheusad') }}" | ConvertTo-SecureString -asPlainText -Force
+      $username = "$domain\morpheusad" 
+      $credential = New-Object System.Management.Automation.PSCredential($username,$password)
+      Remove-Computer -ComputerName "$computername" -UnjoinDomainCredential $credential -Force
+    
+    - name: Reboot the VM
+      win_reboot:
+        msg: "Rebooting the VM...."
+        pre_reboot_delay: 15
+        post_reboot_delay: 30
+        reboot_timeout: 600
+
+    - name: Get domain
+      win_shell: |
+        (Get-WmiObject Win32_ComputerSystem).Domain
+      register: current_domain
+      
+    - name: Print value
+      debug: 
+        var: current_domain.stdout
+
+    - name: Debug if nrf.pt is not the current domain
+      debug:
+        msg: "The domain is '{{ current_domain.stdout }}'"
+      when: "'nrf.pt' not in current_domain.stdout"
+
+    - name: Fail if domain is 'nrf.pt'
+      fail:
+        msg: " Error! The domain is still nrf.pt."
+      when: "'nrf.pt' in current_domain.stdout"
