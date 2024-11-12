@@ -1,8 +1,8 @@
 ---  
 
 - name: Download File
-    ansible.builtin.get_url:
-      url: https://...
-      dest: "/etc/check_mk/cmk-update-agent.cfg"
-      #validate_certs: false
-      #use_proxy: no
+  ansible.builtin.get_url:
+   url: https://...
+   dest: "/etc/check_mk/cmk-update-agent.cfg"
+   #validate_certs: false
+   #use_proxy: no
