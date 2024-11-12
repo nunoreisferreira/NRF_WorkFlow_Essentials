@@ -1,0 +1,21 @@
+- name: Delete Host from Checkmk
+  uri:
+    url: "{{ checkmk_api_url }}/objects/host_config/{{ checkmk_target_host_name }}"
+    method: DELETE
+    body_format: json
+    headers:
+      Authorization: "Bearer {{ checkmk_user }} {{ checkmk_pass }}"
+      Accept: "application/json"
+      Content-Type: "application/json"
+    body: |
+      {
+        "host_name": "{{ checkmk_target_host_name }}"
+      }
+    validate_certs: no
+    status_code: 204
+  #delegate_to: localhost # Execute the task on the control node
+  register: api_response      
+
+- name: Print API Response
+  debug:
+    var: api_response.json
