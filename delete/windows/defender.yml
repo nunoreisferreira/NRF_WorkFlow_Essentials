@@ -1,0 +1,30 @@
+- name: Remove Windows Defender
+  ansible.windows.win_powershell:
+    script: |
+      Uninstall-WindowsFeature -Name Windows-Defender
+  register: win_defender_teardown
+
+- name: Print Windows Defender Teardown Result
+  debug:
+    var: win_defender_teardown
+
+- name: Reboot VM
+  win_reboot:
+    msg: "Rebooting the VM...."
+    pre_reboot_delay: 15
+    post_reboot_delay: 30
+    reboot_timeout: 600
+  when: win_defender_teardown.output[0].RestartNeeded.String == 'Yes'
+
+- name: Get hostname
+  ansible.windows.win_powershell:
+    script: |
+      $hostname = Invoke-Expression -Command '([System.Net.Dns]::GetHostByName(($env:computerName))).Hostname'
+      $hostfqdnlower = $hostname.ToLower()
+      $hostfqdnlower
+  register: hostname
+
+- name: Confirm system is back online
+  debug:
+    msg: "{{ hostname.output[0] }} is UP!"
+        
