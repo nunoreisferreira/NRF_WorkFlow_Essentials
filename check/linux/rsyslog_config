@@ -1,0 +1,17 @@
+---
+
+- name: Check if the line exists on vm's
+  command: grep '^\*\.emerg,\*\.alert,\*\.crit,\*\.warning,\*\.err,\*\.notice,\*\.info @@172.21.32.94$' /etc/rsyslog.conf
+  register: grep_result
+  ignore_errors: yes
+  changed_when: false
+
+- name: line found
+  debug:
+    msg: "Line found in rsyslog.conf: {{ grep_result.stdout }}" #.stdout = standard output
+  when: grep_result.rc == 0 #.rc = return code
+
+- name: line not found
+  debug:
+    msg: "Line not found in rsyslog.conf"
+  when: grep_result.rc != 0
