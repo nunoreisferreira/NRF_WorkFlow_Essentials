@@ -1,0 +1,20 @@
+---
+- name: Get Hostname [Linux]
+  block:
+    - name: Get hostname (Linux)
+      ansible.builtin.command:
+        cmd: hostname
+      register: vm_name
+
+    - name: Print retrieved hostname (Linux)
+      debug:
+        var: vm_name.stdout
+
+    - name: Set hostname as a fact (Linux)
+      set_fact:
+        hostname: "{{ vm_name.stdout }}.nrf.pt"
+
+    - name: Display hostname after setting fact (Linux)
+      debug:
+        var: hostname
+  when: ansible_facts['os_family'] == 'RedHat' or ansible_facts['os_family'] == 'Debian'
