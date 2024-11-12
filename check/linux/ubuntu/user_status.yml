@@ -1,31 +1,25 @@
-- name: Check if user nexpose_rcl exists
-  hosts: all
-  gather_facts: false
-  ignore_errors: true
-  vars:
-    pass_nex: "{{ lookup('cypher','secret=secret/nexpose') }}"
+---
 
-  tasks:
-    - name: Check if the user exists
-      command: id nexpose_rcl
-      ignore_errors: yes
-      register: user_check
-      # remote_user: cloudadmin | If necessary, we can put a remote_user to help user accessing
-      become: yes
+- name: Check if the user exists
+  command: id nexpose_rcl
+  ignore_errors: yes
+  register: user_check
+  # remote_user: cloudadmin | If necessary, we can put a remote_user to help user accessing
+  become: yes
 
-    - name: Create user nexpose_rcl if it does not exist
-      ansible.builtin.user:
-        name: nexpose_rcl
-        password: "{{ {{pass_nex}} | password_hash('sha512') }}"
-        state: present
-      when: user_check.rc != 0
-      become: yes
+- name: Create user nexpose_rcl if it does not exist
+  ansible.builtin.user:
+    name: nexpose_rcl
+    password: "{{ {{pass_nex}} | password_hash('sha512') }}"
+    state: present
+  when: user_check.rc != 0
+  become: yes
 
-    - name: Add nexpose_rcl to sudoers
-      ansible.builtin.lineinfile:
-        path: /etc/sudoers
-        line: "nexpose_rcl ALL=(ALL) NOPASSWD: ALL"
-        insertafter: EOF
-        validate: 'visudo -cf %s'
-      when: user_check.rc != 0
-      become: yes
+- name: Add nexpose_rcl to sudoers
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    line: "nexpose_rcl ALL=(ALL) NOPASSWD: ALL"
+    insertafter: EOF
+    validate: 'visudo -cf %s'
+  when: user_check.rc != 0
+  become: yes
