@@ -1,0 +1,34 @@
+---
+
+- name: Check if Netplan is used (check for files in /etc/netplan)
+  find:
+    paths: /etc/netplan
+    patterns: "*.yaml"
+  register: netplan_files
+
+- name: Check if Netplan files exist
+  set_fact:
+    use_netplan: "{{ netplan_files.matched > 0 }}"
+
+- name: Collect DNS configuration using Netplan
+  when: use_netplan
+  command: cat "{{ item.path }}"
+  loop: "{{ netplan_files.files }}"
+  register: netplan_content
+
+- name: Display DNS configuration from Netplan
+  when: use_netplan
+  debug:
+    msg: "{{ item.stdout }}"
+  loop: "{{ netplan_content.results }}"
+
+- name: Collect DNS configuration from /etc/resolv.conf
+  when: not use_netplan
+  command: cat /etc/resolv.conf
+  register: dns_config
+
+- name: Display DNS configuration from /etc/resolv.conf
+  when: not use_netplan
+  debug:
+    msg: "{{ dns_config.stdout }}"
+      
