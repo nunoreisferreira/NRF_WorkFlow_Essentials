@@ -1,0 +1,25 @@
+---
+
+- name: Check if Service is running
+  ansible.builtin.shell: "systemctl is-active {{ selected_service }}"
+  register: service_status
+  ignore_errors: yes
+
+- name: Print {{ selected_service }} Status
+  debug:
+    var: service_status.stdout
+
+- name: Fail if {{ selected_service }} is not installed
+  ansible.builtin.fail:
+    msg: "{{ selected_service }} isn't installed!"
+  when: service_status.stdout == "notInstalled"
+
+- name: Start {{ selected_service }} if it is not running
+  ansible.builtin.systemd:
+    name: "{{ selected_service }}"
+    state: started
+  when: service_status.stdout != "active"
+
+- name: Print {{ selected_service }} Status
+  debug:
+    var: service_status.stdout
