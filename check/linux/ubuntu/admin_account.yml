@@ -1,0 +1,15 @@
+- name: Unlock User Account Windows
+  hosts: all
+  
+  tasks:
+  
+    - name: Unlock User account
+      win_user:
+        name: Administrator
+        state: present
+        account_locked: no
+      register: result
+    
+    - name: debug
+      debug:
+        var: result
