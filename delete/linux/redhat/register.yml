@@ -1,0 +1,25 @@
+- name: Uninstall Check_MK agent
+  yum:
+    name: check-mk-agent
+    state: absent
+  register: unregister_status
+  ignore_errors: yes
+
+- name: Unregister Output
+  debug:
+    var: unregister_status
+
+- name: Remove Check_MK configuration files
+  file:
+    path: "{{ item }}"
+    state: absent
+    force: yes
+  loop:
+    - /etc/cmk-update-agent.state
+    - /etc/check_mk
+    - /usr/lib/check_mk_agent
+  register: del_config_status
+
+- name: Delete Configurations Output
+  debug:
+    var: del_config_status
