@@ -1,0 +1,10 @@
+---
+
+- name: Check NTP_Chrony Config
+  raw: chronyc sources
+  register: ntp_status
+  ignore_errors: true
+
+- name: NTP_Chrony Status
+  ansible.builtin.debug:
+    var: ntp_status.stdout_lines
