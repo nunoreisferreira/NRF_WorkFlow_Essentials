@@ -1,0 +1,20 @@
+- name: Download file from HTTP URL to C:\temp
+  win_command: |
+    powershell -Command "Invoke-WebRequest -Uri 'https://...' -OutFile 'C:\cmk-update-agent.cfg'"
+  args:
+    creates: C:\cmk-update-agent.cfg
+
+- name: Ensure the destination directory C:\hello exists
+  win_file:
+    path: C:\ProgramData\checkmk\agent\config
+    state: directory
+
+- name: Copy file from C:\ to C:\ProgramData\checkmk\agent\config\ 
+  win_command: |
+    powershell -Command "Copy-Item -Path 'C:\cmk-update-agent.cfg' -Destination 'C:\ProgramData\checkmk\agent\config\cmk-update-agent.cfg' -Force"
+
+- name: Delete the downloaded file from C:\
+  win_command: |
+    powershell -Command "Remove-Item -Path 'C:\cmk-update-agent.cfg' -Force"
+  args:
+    removes: C:\cmk-update-agent.cfg
